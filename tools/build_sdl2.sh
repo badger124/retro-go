@@ -9,7 +9,7 @@ CFLAGS="-no-pie -DRG_TARGET_SDL2 -DRETRO_GO -DCJSON_HIDE_SYMBOLS -DSDL_MAIN_HAND
 INCLUDES="-Icomponents/retro-go -Icomponents/retro-go/libs/cJSON -Icomponents/retro-go/libs/lodepng -Icomponents/retro-go/libs/miniz"
 SRCFILES="components/retro-go/*.c components/retro-go/drivers/audio/*.c components/retro-go/fonts/*.c
 		  components/retro-go/libs/cJSON/*.c components/retro-go/libs/lodepng/*.c components/retro-go/libs/miniz/*.c"
-LIBS="$(sdl2-config --libs) -lstdc++"
+LIBS="$(sdl2-config --libs) -lstdc++ -lm"
 
 echo "Cleaning..."
 rm -f launcher.exe retro-core.exe gmon.out

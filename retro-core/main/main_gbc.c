@@ -1,5 +1,6 @@
 #include "shared.h"
 
+#include <stdlib.h>
 #include <sys/time.h>
 #include <gnuboy.h>
 
