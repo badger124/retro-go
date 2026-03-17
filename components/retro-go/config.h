@@ -6,6 +6,8 @@
 #include "targets/mrgc-g32/config.h"
 #elif defined(RG_TARGET_RETRO_ESP32)
 #include "targets/retro-esp32/config.h"
+#elif defined(RG_TARGET_RETRO_ESP32_X)
+#include "targets/retro-esp32-x/config.h"
 #elif defined(RG_TARGET_RETRO_RULER_V1)
 #include "targets/retro-ruler-V1/config.h"
 #elif defined(RG_TARGET_SDL2)
