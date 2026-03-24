@@ -654,6 +654,7 @@ bool rg_task_peek(rg_task_msg_t *out)
     while (task->msgWaiting < 1)
         continue;
     *out = task->msg;
+    success = true;
 #endif
     // task->blocked = false;
     return success;
@@ -673,6 +674,7 @@ bool rg_task_receive(rg_task_msg_t *out)
         continue;
     *out = task->msg;
     task->msgWaiting = 0;
+    success = true;
 #endif
     // task->blocked = false;
     return success;

@@ -80,6 +80,18 @@ import re
 list_char_ranges_init = "32-126, 160-255"
 font_size_init = 11
 
+# Preset Unicode ranges for the Presets dropdown
+RANGE_PRESETS = {
+    "Latin (32-255)":           "32-126, 160-255",
+    "Korean - Hangul (가-힣)":  "44032-55203",
+    "Japanese - Hiragana":      "12353-12438",
+    "Japanese - Katakana":      "12449-12534",
+    "CJK Unified Ideographs":   "19968-40959",
+    "Greek":                    "913-969",
+    "Cyrillic":                 "1040-1103",
+    "Arabic":                   "1569-1610",
+}
+
 font_path = ("arial.ttf")  # Replace with your TTF font path
 
 # Variables to track panning
@@ -143,7 +155,9 @@ def load_ttf_font(font_path, font_size):
     for char_code in get_char_list(list_char_ranges.get()):
         char = chr(char_code)
 
-        image = Image.new("1", (font_size * 2, font_size * 2), 0) # generate mono bmp, 0 = black color
+        # Use grayscale ("L") mode for better rendering of complex scripts (Korean, CJK, etc.)
+        # The anti-aliased result is thresholded to 1-bit in the bitmap extraction step below.
+        image = Image.new("L", (font_size * 2, font_size * 2), 0)
         draw = ImageDraw.Draw(image)
         # Draw at pos 1 otherwise some glyphs are clipped. we remove the added offset below
         draw.text((1, 0), char, font=pil_font, fill=255)
@@ -188,10 +202,10 @@ def load_ttf_font(font_path, font_size):
                     bitmap.append(row)
                     row = 0
                     i = 0
-                pixel = 1 if cropped_image.getpixel((x, y)) else 0
+                pixel = 1 if cropped_image.getpixel((x, y)) >= 128 else 0
                 row = (row << 1) | pixel
                 i += 1
-        bitmap.append(row << 8-i) # to "fill" with zero the remaining empty bits
+        bitmap.append(row << (8-i)) # to "fill" with zero the remaining empty bits
         bitmap = bitmap[0:int((width * height + 7) / 8)]
 
         # Create glyph entry
@@ -376,7 +390,7 @@ def select_file():
     filename = filedialog.askopenfilename(
         title='Load Font',
         initialdir=os.getcwd(),
-        filetypes=(('True Type Font', '*.ttf'), ('Retro-Go Font', '*.c'), ('All files', '*.*')))
+        filetypes=(('Font files', '*.ttf *.otf'), ('True Type Font', '*.ttf'), ('OpenType Font', '*.otf'), ('Retro-Go Font', '*.c'), ('All files', '*.*')))
 
     if filename:
         global font_path
@@ -452,6 +466,18 @@ if __name__ == "__main__":
     Label(frame, text="Ranges to include").pack(side="left", padx=5)
     list_char_ranges = StringVar(value=str(list_char_ranges_init))
     Entry(frame, textvariable=list_char_ranges, width=30).pack(side="left", padx=5)
+
+    # Preset selector: quickly populate the ranges field with common Unicode blocks
+    def apply_preset(event=None):
+        selected = preset_var.get()
+        if selected in RANGE_PRESETS:
+            list_char_ranges.set(RANGE_PRESETS[selected])
+
+    preset_var = StringVar(value="")  # empty by default; selecting an item calls apply_preset
+    preset_options = list(RANGE_PRESETS.keys())
+    preset_menu = ttk.Combobox(frame, textvariable=preset_var, values=preset_options, width=28, state="readonly")
+    preset_menu.pack(side="left", padx=5)
+    preset_menu.bind("<<ComboboxSelected>>", apply_preset)
 
     # Variable to hold the state of the checkbox
     bounding_box_bool = IntVar(value=1)  # 0 for unchecked, 1 for checked
